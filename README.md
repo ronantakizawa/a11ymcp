@@ -134,7 +134,7 @@ Example
 To use this server with Claude Desktop, you need to configure it in the MCP settings:
 
 **For macOS:**
-Edit the file at `~/Library/Application Support/Claude/settings/cline_mcp_settings.json`
+Edit the file at `~/Library/Application Support/Claude/settings/claude_mcp_settings.json`
 
 ```
 {
@@ -150,10 +150,10 @@ Edit the file at `~/Library/Application Support/Claude/settings/cline_mcp_settin
 ```
 
 **For Windows:**
-Edit the file at `%APPDATA%\Claude\settings\cline_mcp_settings.json`
+Edit the file at `%APPDATA%\Claude\settings\claude_mcp_settings.json`
 
 **For Linux:**
-Edit the file at `~/.config/Claude/settings/cline_mcp_settings.json`
+Edit the file at `~/.config/Claude/settings/claude_mcp_settings.json`
 Replace `/path/to/axe-mcp-server/build/index.js` with the actual path to your compiled server file.
 
 
