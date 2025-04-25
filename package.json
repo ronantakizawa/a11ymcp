@@ -1,6 +1,7 @@
 {
   "name": "a11y-mcp-server",
   "version": "1.0.4",
+  "type":"module",
   "description": "An MCP server for accessibility testing using Axe-core",
   "main": "build/index.js",
   "bin": {
