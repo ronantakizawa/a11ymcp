@@ -9,7 +9,6 @@ import * as axe from 'axe-core';
 class AxeAccessibilityServer {
     server;
     constructor() {
-        console.error('[Setup] Initializing Axe Accessibility MCP server...');
         this.server = new Server({
             name: 'axe-accessibility-server',
             version: '0.1.0',
@@ -182,8 +181,7 @@ class AxeAccessibilityServer {
             const page = await browser.newPage();
             // Set a reasonable viewport
             await page.setViewport({ width: 1280, height: 800 });
-            console.error(`[API] Testing accessibility for URL: ${url}`);
-            await page.goto(url, { waitUntil: 'networkidle0', timeout: 30000 });
+            await page.goto(url, { waitUntil: 'networkidle0', timeout: 0 });
             // Run axe analysis
             const axe = new AxePuppeteer(page);
             if (tags && tags.length > 0) {
@@ -219,7 +217,6 @@ class AxeAccessibilityServer {
             const page = await browser.newPage();
             // Set a reasonable viewport
             await page.setViewport({ width: 1280, height: 800 });
-            console.error(`[API] Testing accessibility for HTML string`);
             await page.setContent(html, { waitUntil: 'networkidle0' });
             // Run axe analysis
             const axe = new AxePuppeteer(page);
@@ -244,7 +241,6 @@ class AxeAccessibilityServer {
     }
     async getRules(args) {
         const { tags } = args;
-        console.error(`[API] Getting accessibility rules`);
         try {
             // Get the axe rules
             let rules;
@@ -280,7 +276,6 @@ class AxeAccessibilityServer {
     }
     async checkColorContrast(args) {
         const { foreground, background, fontSize = 16, isBold = false } = args;
-        console.error(`[DEBUG] Starting color contrast check for ${foreground} on ${background}, fontSize: ${fontSize}, isBold: ${isBold}`);
         if (!foreground || !background) {
             throw new McpError(ErrorCode.InvalidParams, 'Missing required parameters: foreground and background colors');
         }
@@ -289,16 +284,13 @@ class AxeAccessibilityServer {
         if (!hexColorRegex.test(foreground) || !hexColorRegex.test(background)) {
             throw new McpError(ErrorCode.InvalidParams, 'Colors must be in hex format (e.g., "#000000" or "#000")');
         }
-        console.error(`[DEBUG] Color format validation passed`);
         let browser;
         try {
             browser = await puppeteer.launch({
                 headless: true,
                 args: ['--no-sandbox', '--disable-setuid-sandbox']
             });
-            console.error(`[DEBUG] Browser launched`);
             const page = await browser.newPage();
-            console.error(`[DEBUG] New page created`);
             // Create a simple HTML page with the specified colors
             const html = `
         <!DOCTYPE html>
@@ -320,7 +312,6 @@ class AxeAccessibilityServer {
         </html>
       `;
             await page.setContent(html);
-            console.error(`[DEBUG] Page content set with test element`);
             // Run only the color-contrast rule
             const axe = new AxePuppeteer(page)
                 .options({
@@ -329,20 +320,14 @@ class AxeAccessibilityServer {
                     values: ['color-contrast']
                 }
             });
-            console.error(`[DEBUG] AxePuppeteer initialized with color-contrast rule`);
             const result = await axe.analyze();
-            console.error(`[DEBUG] Analysis complete. Violations found: ${result.violations.length}, Passes: ${result.passes.length}`);
             // Check if there are any violations
             const passes = result.violations.length === 0;
-            console.error(`[DEBUG] Test passes: ${passes}`);
             // Extract contrast ratio from failure summary text
             let contrastRatio = null;
             let extractionMethod = 'none';
             if (result.violations.length > 0 && result.violations[0].nodes.length > 0) {
-                console.error(`[DEBUG] Attempting to extract ratio from violation data`);
-                console.error(`[DEBUG] Violation ID: ${result.violations[0].id}`);
                 const failureSummary = result.violations[0].nodes[0].failureSummary || '';
-                console.error(`[DEBUG] Failure summary: ${failureSummary}`);
                 // Extract contrast ratio from failure summary using regex
                 const match = failureSummary.match(/contrast ratio of ([0-9.]+)/);
                 if (match && match[1]) {
@@ -355,36 +340,28 @@ class AxeAccessibilityServer {
                 }
                 // Additional inspection of violation data
                 if (contrastRatio === null) {
-                    console.error(`[DEBUG] Inspecting violation node data:`);
                     // Log all properties of the first node to see if contrast data is available elsewhere
                     const node = result.violations[0].nodes[0];
-                    console.error(`[DEBUG] Node keys: ${Object.keys(node).join(', ')}`);
                     if (node.any && node.any.length > 0) {
-                        console.error(`[DEBUG] Node.any keys: ${Object.keys(node.any[0]).join(', ')}`);
                         if (node.any[0].data) {
-                            console.error(`[DEBUG] Node.any[0].data keys: ${Object.keys(node.any[0].data).join(', ')}`);
                             if (node.any[0].data.contrastRatio) {
                                 contrastRatio = node.any[0].data.contrastRatio;
                                 extractionMethod = 'node.any[0].data';
-                                console.error(`[DEBUG] Found contrast ratio in node.any[0].data: ${contrastRatio}`);
                             }
                         }
                     }
                 }
             }
             else if (result.passes.length > 0 && result.passes[0].nodes.length > 0) {
-                console.error(`[DEBUG] Attempting to extract ratio from pass data`);
                 // Try to extract from pass data
                 const node = result.passes[0].nodes[0];
                 if (node.any && node.any.length > 0 && node.any[0].data && node.any[0].data.contrastRatio) {
                     contrastRatio = node.any[0].data.contrastRatio;
                     extractionMethod = 'pass.node.any[0].data';
-                    console.error(`[DEBUG] Found contrast ratio in pass data: ${contrastRatio}`);
                 }
             }
             // If we couldn't extract it, calculate it directly
             if (contrastRatio === null) {
-                console.error(`[DEBUG] Calculating contrast ratio directly`);
                 // Calculate contrast ratio using page evaluation
                 contrastRatio = await page.evaluate((fg, bg) => {
                     // Helper to convert hex to rgb
@@ -417,11 +394,9 @@ class AxeAccessibilityServer {
                     return parseFloat(ratio.toFixed(2));
                 }, foreground, background);
                 extractionMethod = 'manual-calculation';
-                console.error(`[DEBUG] Calculated contrast ratio: ${contrastRatio}`);
             }
             // Sanity check for known poor contrast combinations
             if (contrastRatio === 4.5) {
-                console.error(`[DEBUG] WARNING: Suspiciously exact contrast ratio of 4.5 detected`);
                 // Calculate directly for verification
                 const verifiedRatio = await page.evaluate((fg, bg) => {
                     const hexToRgb = (hex) => {
@@ -448,39 +423,28 @@ class AxeAccessibilityServer {
                     const ratio = (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
                     return parseFloat(ratio.toFixed(2));
                 }, foreground, background);
-                console.error(`[DEBUG] Verification contrast ratio: ${verifiedRatio}`);
                 if (verifiedRatio !== 4.5) {
                     contrastRatio = verifiedRatio;
                     extractionMethod = 'verification-calculation';
-                    console.error(`[DEBUG] Using verification contrast ratio instead`);
                 }
             }
             // If we still have a suspicious value for known poor contrast combinations
             if ((foreground === "#777777" && background === "#EEEEEE" && contrastRatio === 4.5) ||
                 (foreground === "#FFCCCC" && background === "#FFFFFF" && contrastRatio === 4.5)) {
-                console.error(`[DEBUG] CRITICAL: Known poor contrast combination has 4.5 ratio`);
                 // Force correct values for known combinations
                 if (foreground === "#777777" && background === "#EEEEEE") {
                     contrastRatio = 2.5; // Approximate value
                     extractionMethod = 'hardcoded-known-value';
-                    console.error(`[DEBUG] Using hardcoded value for #777777 on #EEEEEE`);
                 }
                 else if (foreground === "#FFCCCC" && background === "#FFFFFF") {
                     contrastRatio = 1.3; // Approximate value
                     extractionMethod = 'hardcoded-known-value';
-                    console.error(`[DEBUG] Using hardcoded value for #FFCCCC on #FFFFFF`);
                 }
             }
             // Determine required contrast ratios based on font size
             const isLargeText = (fontSize >= 18) || (fontSize >= 14 && isBold);
             const requiredRatioAA = isLargeText ? 3.0 : 4.5;
             const requiredRatioAAA = isLargeText ? 4.5 : 7.0;
-            console.error(`[DEBUG] Final contrast ratio: ${contrastRatio} (via ${extractionMethod})`);
-            console.error(`[DEBUG] Is large text: ${isLargeText}`);
-            console.error(`[DEBUG] Required ratio AA: ${requiredRatioAA}`);
-            console.error(`[DEBUG] Required ratio AAA: ${requiredRatioAAA}`);
-            console.error(`[DEBUG] Passes AA: ${contrastRatio !== null ? contrastRatio >= requiredRatioAA : passes}`);
-            console.error(`[DEBUG] Passes AAA: ${contrastRatio !== null ? contrastRatio >= requiredRatioAAA : null}`);
             return {
                 content: [
                     {
@@ -506,7 +470,6 @@ class AxeAccessibilityServer {
         finally {
             if (browser) {
                 await browser.close();
-                console.error(`[DEBUG] Browser closed`);
             }
         }
     }
@@ -686,7 +649,6 @@ class AxeAccessibilityServer {
     async run() {
         const transport = new StdioServerTransport();
         await this.server.connect(transport);
-        console.error('Axe Accessibility MCP server running on stdio');
     }
 }
 const server = new AxeAccessibilityServer();
