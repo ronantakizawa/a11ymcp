@@ -1,54 +1,16 @@
 #!/usr/bin/env node
-"use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const index_js_1 = require("@modelcontextprotocol/sdk/server/index.js");
-const stdio_js_1 = require("@modelcontextprotocol/sdk/server/stdio.js");
-const types_js_1 = require("@modelcontextprotocol/sdk/types.js");
-const puppeteer_1 = __importDefault(require("puppeteer"));
-const puppeteer_2 = __importDefault(require("@axe-core/puppeteer"));
+import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { CallToolRequestSchema, ErrorCode, ListToolsRequestSchema, McpError, } from '@modelcontextprotocol/sdk/types.js';
+import puppeteer from 'puppeteer';
+import AxePuppeteer from '@axe-core/puppeteer';
 // Import axe-core for direct API access
-const axe = __importStar(require("axe-core"));
+import * as axe from 'axe-core';
 class AxeAccessibilityServer {
     server;
     constructor() {
         console.error('[Setup] Initializing Axe Accessibility MCP server...');
-        this.server = new index_js_1.Server({
+        this.server = new Server({
             name: 'axe-accessibility-server',
             version: '0.1.0',
         }, {
@@ -64,7 +26,7 @@ class AxeAccessibilityServer {
         });
     }
     setupToolHandlers() {
-        this.server.setRequestHandler(types_js_1.ListToolsRequestSchema, async () => ({
+        this.server.setRequestHandler(ListToolsRequestSchema, async () => ({
             tools: [
                 {
                     name: 'test_accessibility',
@@ -178,7 +140,7 @@ class AxeAccessibilityServer {
                 }
             ],
         }));
-        this.server.setRequestHandler(types_js_1.CallToolRequestSchema, async (request) => {
+        this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
             try {
                 switch (request.params.name) {
                     case 'test_accessibility':
@@ -194,13 +156,13 @@ class AxeAccessibilityServer {
                     case 'check_orientation_lock':
                         return await this.checkOrientationLock(request.params.arguments);
                     default:
-                        throw new types_js_1.McpError(types_js_1.ErrorCode.MethodNotFound, `Unknown tool: ${request.params.name}`);
+                        throw new McpError(ErrorCode.MethodNotFound, `Unknown tool: ${request.params.name}`);
                 }
             }
             catch (error) {
                 if (error instanceof Error) {
                     console.error('[Error] Failed to perform requested operation:', error);
-                    throw new types_js_1.McpError(types_js_1.ErrorCode.InternalError, `Failed to perform requested operation: ${error.message}`);
+                    throw new McpError(ErrorCode.InternalError, `Failed to perform requested operation: ${error.message}`);
                 }
                 throw error;
             }
@@ -209,11 +171,11 @@ class AxeAccessibilityServer {
     async testAccessibility(args) {
         const { url, tags } = args;
         if (!url) {
-            throw new types_js_1.McpError(types_js_1.ErrorCode.InvalidParams, 'Missing required parameter: url');
+            throw new McpError(ErrorCode.InvalidParams, 'Missing required parameter: url');
         }
         let browser;
         try {
-            browser = await puppeteer_1.default.launch({
+            browser = await puppeteer.launch({
                 headless: true,
                 args: ['--no-sandbox', '--disable-setuid-sandbox']
             });
@@ -223,7 +185,7 @@ class AxeAccessibilityServer {
             console.error(`[API] Testing accessibility for URL: ${url}`);
             await page.goto(url, { waitUntil: 'networkidle0', timeout: 30000 });
             // Run axe analysis
-            const axe = new puppeteer_2.default(page);
+            const axe = new AxePuppeteer(page);
             if (tags && tags.length > 0) {
                 axe.withTags(tags);
             }
@@ -246,11 +208,11 @@ class AxeAccessibilityServer {
     async testHtmlString(args) {
         const { html, tags } = args;
         if (!html) {
-            throw new types_js_1.McpError(types_js_1.ErrorCode.InvalidParams, 'Missing required parameter: html');
+            throw new McpError(ErrorCode.InvalidParams, 'Missing required parameter: html');
         }
         let browser;
         try {
-            browser = await puppeteer_1.default.launch({
+            browser = await puppeteer.launch({
                 headless: true,
                 args: ['--no-sandbox', '--disable-setuid-sandbox']
             });
@@ -260,7 +222,7 @@ class AxeAccessibilityServer {
             console.error(`[API] Testing accessibility for HTML string`);
             await page.setContent(html, { waitUntil: 'networkidle0' });
             // Run axe analysis
-            const axe = new puppeteer_2.default(page);
+            const axe = new AxePuppeteer(page);
             if (tags && tags.length > 0) {
                 axe.withTags(tags);
             }
@@ -313,24 +275,24 @@ class AxeAccessibilityServer {
         }
         catch (error) {
             console.error('[Error] Failed to get rules:', error);
-            throw new types_js_1.McpError(types_js_1.ErrorCode.InternalError, `Failed to get rules: ${error instanceof Error ? error.message : String(error)}`);
+            throw new McpError(ErrorCode.InternalError, `Failed to get rules: ${error instanceof Error ? error.message : String(error)}`);
         }
     }
     async checkColorContrast(args) {
         const { foreground, background, fontSize = 16, isBold = false } = args;
         console.error(`[DEBUG] Starting color contrast check for ${foreground} on ${background}, fontSize: ${fontSize}, isBold: ${isBold}`);
         if (!foreground || !background) {
-            throw new types_js_1.McpError(types_js_1.ErrorCode.InvalidParams, 'Missing required parameters: foreground and background colors');
+            throw new McpError(ErrorCode.InvalidParams, 'Missing required parameters: foreground and background colors');
         }
         // Validate hex color format
         const hexColorRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
         if (!hexColorRegex.test(foreground) || !hexColorRegex.test(background)) {
-            throw new types_js_1.McpError(types_js_1.ErrorCode.InvalidParams, 'Colors must be in hex format (e.g., "#000000" or "#000")');
+            throw new McpError(ErrorCode.InvalidParams, 'Colors must be in hex format (e.g., "#000000" or "#000")');
         }
         console.error(`[DEBUG] Color format validation passed`);
         let browser;
         try {
-            browser = await puppeteer_1.default.launch({
+            browser = await puppeteer.launch({
                 headless: true,
                 args: ['--no-sandbox', '--disable-setuid-sandbox']
             });
@@ -360,7 +322,7 @@ class AxeAccessibilityServer {
             await page.setContent(html);
             console.error(`[DEBUG] Page content set with test element`);
             // Run only the color-contrast rule
-            const axe = new puppeteer_2.default(page)
+            const axe = new AxePuppeteer(page)
                 .options({
                 runOnly: {
                     type: 'rule',
@@ -551,18 +513,18 @@ class AxeAccessibilityServer {
     async checkAriaAttributes(args) {
         const { html } = args;
         if (!html) {
-            throw new types_js_1.McpError(types_js_1.ErrorCode.InvalidParams, 'Missing required parameter: html');
+            throw new McpError(ErrorCode.InvalidParams, 'Missing required parameter: html');
         }
         let browser;
         try {
-            browser = await puppeteer_1.default.launch({
+            browser = await puppeteer.launch({
                 headless: true,
                 args: ['--no-sandbox', '--disable-setuid-sandbox']
             });
             const page = await browser.newPage();
             await page.setContent(html);
             // Run only the ARIA-related rules
-            const axe = new puppeteer_2.default(page)
+            const axe = new AxePuppeteer(page)
                 .options({
                 runOnly: {
                     type: 'rule',
@@ -616,18 +578,18 @@ class AxeAccessibilityServer {
     async checkOrientationLock(args) {
         const { html } = args;
         if (!html) {
-            throw new types_js_1.McpError(types_js_1.ErrorCode.InvalidParams, 'Missing required parameter: html');
+            throw new McpError(ErrorCode.InvalidParams, 'Missing required parameter: html');
         }
         let browser;
         try {
-            browser = await puppeteer_1.default.launch({
+            browser = await puppeteer.launch({
                 headless: true,
                 args: ['--no-sandbox', '--disable-setuid-sandbox']
             });
             const page = await browser.newPage();
             await page.setContent(html);
             // Run the orientation-lock rule (experimental in Axe)
-            const axe = new puppeteer_2.default(page)
+            const axe = new AxePuppeteer(page)
                 .options({
                 rules: {
                     'meta-viewport': { enabled: true }
@@ -722,7 +684,7 @@ class AxeAccessibilityServer {
         };
     }
     async run() {
-        const transport = new stdio_js_1.StdioServerTransport();
+        const transport = new StdioServerTransport();
         await this.server.connect(transport);
         console.error('Axe Accessibility MCP server running on stdio');
     }

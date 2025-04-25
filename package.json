@@ -1,6 +1,6 @@
 {
   "name": "a11y-mcp-server",
-  "version": "1.0.3",
+  "version": "1.0.2",
   "description": "An MCP server for accessibility testing using Axe-core",
   "main": "build/index.js",
   "bin": {
@@ -33,6 +33,9 @@
   "devDependencies": {
     "@types/node": "^20.9.0",
     "typescript": "^5.2.2"
+  },
+  "engines": {
+    "node": ">=15.0.0"
   },
   "repository": {
     "type": "git",
