@@ -1,5 +1,8 @@
 # A11y MCP Server
 
+![image](https://github.com/user-attachments/assets/dc3af3c4-4d72-4454-b363-8f5951198675)
+
+
 An MCP (Model Context Protocol) server that provides accessibility testing capabilities to Claude and other AI assistants using the Deque Axe-core API.
 
 ## Overview
