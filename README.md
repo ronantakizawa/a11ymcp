@@ -138,17 +138,18 @@ Example
 To use this server with Claude Desktop, you need to configure it in the MCP settings:
 
 **For macOS:**
-Edit the file at `~/Library/Application Support/Claude/settings/claude_mcp_settings.json`
+Edit the file at `'~/Library/Application Support/Claude/claude_desktop_config.json'`
 
 ```
 {
   "mcpServers": {
-    "axe-accessibility": {
-      "command": "node",
-      "args": ["/path/to/axe-mcp-server/build/index.js"],
-      "disabled": false,
-      "autoApprove": []
-    }
+    "a11y-accessibility": {
+    "command": "npx",
+    "args": [
+      "-y",
+      "a11y-mcp-server"
+    ]
+   }
   }
 }
 ```
