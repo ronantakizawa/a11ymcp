@@ -22,6 +22,8 @@ NOTE: This is not an official MCP server from Deque Labs.
 - **ARIA validation**: Test proper usage of ARIA attributes
 - **Orientation lock detection**: Identify content that forces specific screen orientations
 
+## Demo
+
 <img width="1508" alt="Screenshot 2025-04-25 at 4 15 26 PM" src="https://github.com/user-attachments/assets/ce60eaab-b2dc-450b-a30e-cf0484e22b7d" />
 
 ## Installation
