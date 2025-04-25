@@ -9,6 +9,8 @@ An MCP (Model Context Protocol) server that provides accessibility testing capab
 
 This project enables AI assistants to perform automated accessibility testing on web pages and HTML content through the Model Context Protocol. It uses Puppeteer and the Axe-core library from Deque to analyze web content for WCAG compliance and identify accessibility issues.
 
+NOTE: This is not an official MCP server from Deque Labs.
+
 ## Features
 
 - **Test web pages**: Test any public URL for accessibility issues
@@ -19,6 +21,20 @@ This project enables AI assistants to perform automated accessibility testing on
 - **Color contrast analysis**: Check color combinations for WCAG compliance
 - **ARIA validation**: Test proper usage of ARIA attributes
 - **Orientation lock detection**: Identify content that forces specific screen orientations
+
+## Installation
+
+To install globally and use as a command-line tool:
+
+```bash
+npm install -g a11y-mcp-server
+```
+
+Then run the server:
+
+```bash
+a11y-mcp-server
+```
 
 ## Available Tools
 
@@ -182,3 +198,10 @@ The server returns accessibility test results in a structured JSON format:
   }
 }
 ```
+
+## Dependencies
+
+- @modelcontextprotocol/sdk
+- puppeteer
+- @axe-core/puppeteer
+- axe-core

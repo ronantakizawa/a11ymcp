@@ -1,25 +1,48 @@
 {
-  "name": "accessibility",
+  "name": "a11y-mcp-server",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "An MCP server for accessibility testing using Axe-core",
+  "main": "build/index.js",
+  "bin": {
+    "a11y-mcp-server": "./bin/a11y-mcp-server.js"
+  },
   "scripts": {
     "build": "tsc",
     "start": "node build/index.js",
-    "inspect": "npx @modelcontextprotocol/inspector node build/index.js"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepublishOnly": "npm run build"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "keywords": [
+    "accessibility",
+    "a11y",
+    "axe",
+    "axe-core",
+    "mcp",
+    "wcag",
+    "claude",
+    "ai"
+  ],
+  "author": "Ronan Takizawa",
+  "license": "MIT",
   "dependencies": {
-    "@axe-core/puppeteer": "^4.10.1",
-    "@modelcontextprotocol/sdk": "^1.10.2",
-    "axios": "^1.9.0",
-    "puppeteer": "^24.7.2"
+    "@axe-core/puppeteer": "^4.7.0",
+    "@modelcontextprotocol/sdk": "^0.10.0",
+    "axe-core": "^4.10.3",
+    "puppeteer": "^21.6.0"
   },
   "devDependencies": {
-    "@types/node": "^22.15.2",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.8.3"
-  }
+    "@types/node": "^20.9.0",
+    "typescript": "^5.2.2"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ronantakizawa/a11ymcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ronantakizawa/a11ymcp/issues"
+  },
+  "homepage": "https://github.com/ronantakizawa/a11ymcp#readme"
 }
