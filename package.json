@@ -1,0 +1,25 @@
+{
+  "name": "accessibility",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node build/index.js",
+    "inspect": "npx @modelcontextprotocol/inspector node build/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@axe-core/puppeteer": "^4.10.1",
+    "@modelcontextprotocol/sdk": "^1.10.2",
+    "axios": "^1.9.0",
+    "puppeteer": "^24.7.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}
