@@ -1,20 +1,21 @@
 {
   "name": "a11y-mcp-server",
-  "version": "1.0.7",
+  "version": "1.0.4",
   "description": "An MCP server for accessibility testing using Axe-core",
-  "type": "module",
-  "main": "build/index.js",
+  "type": "module",                      
+  "main": "dist/index.js",
+  "module":"dist/index.js",
   "bin": {
-    "a11y-mcp-server": "./build/bin/a11y-mcp-server.js"
+    "a11y-mcp-server": "dist/a11y-mcp-server.js"
   },
+  "access": "public",
   "files": [
-    "build/**/*"
+    "dist"                          
   ],
   "scripts": {
-    "build": "tsc",
-    "start": "node build/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "prepublishOnly": "npm run build"
+    "build": "tsc && shx chmod +x dist/*.js",
+    "prepare": "npm run build",
+    "start": "node dist/index.js"
   },
   "keywords": [
     "accessibility",
@@ -32,7 +33,7 @@
     "@axe-core/puppeteer": "^4.4.0",
     "@modelcontextprotocol/sdk": "^0.6.0",
     "axe-core": "^4.6.0",
-    "puppeteer-core": "^19.7.0"
+    "puppeteer-core": "^13.5.0"
   },
   "devDependencies": {
     "@types/node": "^20.9.0",
