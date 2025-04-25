@@ -24,8 +24,7 @@ NOTE: This is not an official MCP server from Deque Labs.
 
 ## Demo
 
-<img width="761" alt="Screenshot 2025-04-25 at 4 16 41 PM" src="https://github.com/user-attachments/assets/cafaa1de-760a-476c-bd01-7d2a634ea434" />
-
+https://github.com/user-attachments/assets/7264a173-fad6-4f43-b8d8-e5f120d2d47b
 
 ## Installation
 
