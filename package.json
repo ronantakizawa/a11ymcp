@@ -1,11 +1,11 @@
 {
   "name": "a11y-mcp-server",
   "version": "1.0.4",
-  "type":"module",
   "description": "An MCP server for accessibility testing using Axe-core",
   "main": "build/index.js",
+  "type":"module",
   "bin": {
-    "a11y-mcp-server": "./bin/a11y-mcp-server.js"
+    "a11y-mcp-server": "./build/bin/a11y-mcp-server.js"
   },
   "scripts": {
     "build": "tsc",
@@ -26,10 +26,10 @@
   "author": "Ronan Takizawa",
   "license": "MIT",
   "dependencies": {
-    "@axe-core/puppeteer": "^4.7.0",
-    "@modelcontextprotocol/sdk": "0.6.0",
-    "axe-core": "^4.10.3",
-    "puppeteer": "^19.7.0"
+    "@axe-core/puppeteer": "^4.4.0",
+    "@modelcontextprotocol/sdk": "^0.9.0",
+    "axe-core": "^4.6.0",
+    "puppeteer-core": "^19.7.0"
   },
   "devDependencies": {
     "@types/node": "^20.9.0",

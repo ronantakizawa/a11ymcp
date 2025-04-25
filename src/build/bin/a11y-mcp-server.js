@@ -8,4 +8,4 @@ const __dirname = dirname(__filename);
 const require = createRequire(import.meta.url);
 
 // Import your server
-import('../build/index.js').catch(console.error);
+import('../index.js').catch(console.error);
