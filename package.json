@@ -33,7 +33,8 @@
     "@axe-core/puppeteer": "^4.4.0",
     "@modelcontextprotocol/sdk": "^0.6.0",
     "axe-core": "^4.6.0",
-    "puppeteer-core": "^13.5.0"
+    "puppeteer-core": "13.5.0",   
+    "puppeteer": "13.5.0"         
   },
   "devDependencies": {
     "@types/node": "^20.9.0",
