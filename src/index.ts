@@ -211,7 +211,7 @@ class AxeAccessibilityServer {
       // Set a reasonable viewport
       await page.setViewport({ width: 1280, height: 800 });
       
-      await page.goto(url, { waitUntil: 'networkidle0', timeout: 30000 });
+      await page.goto(url, { waitUntil: 'networkidle0', timeout: 0 });
       
       // Run axe analysis
       const axe = new AxePuppeteer(page);
