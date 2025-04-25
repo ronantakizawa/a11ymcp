@@ -15,6 +15,10 @@ This project enables AI assistants to perform automated accessibility testing on
 - **Test HTML snippets**: Test raw HTML strings for accessibility issues
 - **WCAG compliance testing**: Check content against various WCAG standards (2.0, 2.1, 2.2)
 - **Customizable tests**: Specify which accessibility tags/standards to test against
+- **Rule exploration**: Get information about available accessibility rules
+- **Color contrast analysis**: Check color combinations for WCAG compliance
+- **ARIA validation**: Test proper usage of ARIA attributes
+- **Orientation lock detection**: Identify content that forces specific screen orientations
 
 ## Available Tools
 
@@ -25,6 +29,9 @@ Tests a URL for accessibility issues.
 **Parameters:**
 - `url` (required): The URL of the web page to test
 - `tags` (optional): Array of WCAG tags to test against (e.g., ["wcag2aa"])
+
+Example
+
 ```
 {
  "url": "https://example.com",
@@ -32,17 +39,80 @@ Tests a URL for accessibility issues.
 }
 ```
 ### test_html_string
+
 Tests an HTML string for accessibility issues.
 Parameters:
 
 * html (required): The HTML content to test
 * tags (optional): Array of WCAG tags to test against (e.g., ["wcag2aa"])
+
+Example
+
 ```
 {
   "html": "<div><img src='image.jpg'></div>",
   "tags": ["wcag2aa"]
 }
 ```
+
+### get_rules
+
+Get information about available accessibility rules with optional filtering.
+
+### check_color_contrast
+
+Check if a foreground and background color combination meets WCAG contrast requirements.
+
+**Parameters:**
+
+- `foreground` (required): Foreground color in hex format (e.g., "#000000")
+- `background` (required): Background color in hex format (e.g., "#FFFFFF")
+- `fontSize` (optional): Font size in pixels (default: 16)
+- `isBold` (optional): Whether the text is bold (default: false)
+
+Example
+
+```
+{
+  "foreground": "#777777",
+  "background": "#EEEEEE",
+  "fontSize": 16,
+  "isBold": false
+}
+```
+
+### check_color_contrast
+
+Check if ARIA attributes are used correctly in HTML.
+
+**Parameters:**
+
+- `html` (required): HTML content to test for ARIA attribute usage
+
+Example
+
+```
+{
+  "html": "<div role='button' aria-pressed='false'>Click me</div>"
+}
+```
+
+### check_orientation_lock
+
+Check if content forces a specific orientation.
+
+**Parameters:**
+
+- `html` (required): HTML content to test for orientation lock issues
+
+Example
+
+```
+{
+  "html": "<html><head><meta name='viewport' content='width=device-width, orientation=portrait'></head><body>Content</body></html>"
+}
+```
+
 
 ## Integration with Claude Desktop
 To use this server with Claude Desktop, you need to configure it in the MCP settings:
