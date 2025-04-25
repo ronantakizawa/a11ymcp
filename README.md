@@ -1,4 +1,4 @@
-# Accessibility Test MCP Server
+# Accessibility-Testing MCP Server
 
 ![image](https://github.com/user-attachments/assets/dc3af3c4-4d72-4454-b363-8f5951198675)
 
