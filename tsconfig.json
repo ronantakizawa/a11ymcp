@@ -1,15 +1,31 @@
 {
-    "compilerOptions": {
-      "target": "ES2022",
-      "module": "Node16",
-      "moduleResolution": "Node16",
-      "outDir": "src/build",
-      "rootDir": "./src",
-      "strict": true,
-      "esModuleInterop": true,
-      "skipLibCheck": true,
-      "forceConsistentCasingInFileNames": true
-    },
-    "include": ["src/**/*"],
-    "exclude": ["node_modules"]
-  }
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    /* Emit */
+    "outDir": "./build",
+    "rootDir": "./src",
+    "declaration": false,
+
+    /* Modules */
+    "module": "NodeNext",                 // keeps native import/export
+    "moduleResolution": "NodeNext",
+    "esModuleInterop": false,             // not needed with native ESM
+    "allowSyntheticDefaultImports": true,
+
+    /* Language */
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+
+    /* Strictness */
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
