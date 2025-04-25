@@ -1,13 +1,10 @@
-# Web Accessibility-Testing MCP Server
+# Web Accessibility-Testing MCP Server (A11y MCP)
 
-![image](https://github.com/user-attachments/assets/dc3af3c4-4d72-4454-b363-8f5951198675)
+![a11ymcp](https://github.com/user-attachments/assets/cd24a228-9cd0-4cec-a7a1-4b7f6ee3e49a)
 
+A11y MCP is an MCP (Model Context Protocol) server that gives LLMs access to web accessibility testing APIs. 
 
-An MCP (Model Context Protocol) server that provides accessibility testing capabilities to Claude and other AI assistants using the Deque Axe-core API.
-
-## Overview
-
-This project enables AI assistants to perform automated accessibility testing on web pages and HTML content through the Model Context Protocol. It uses Puppeteer and the Axe-core library from Deque to analyze web content for WCAG compliance and identify accessibility issues.
+This server uses the Deque Axe-core API and Puppeteer to allow LLMs to analyze web content for WCAG compliance and identify accessibility issues.
 
 NOTE: This is not an official MCP server from Deque Labs.
 
