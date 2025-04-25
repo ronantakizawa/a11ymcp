@@ -1,6 +1,7 @@
 # Web Accessibility-Testing MCP Server (A11y MCP)
 
-![a11ymcp](https://github.com/user-attachments/assets/cd24a228-9cd0-4cec-a7a1-4b7f6ee3e49a)
+![a11ymcpwide](https://github.com/user-attachments/assets/a37c4a9e-da5e-49ac-9705-0ef87a1d5c17)
+
 
 A11y MCP is an MCP (Model Context Protocol) server that gives LLMs access to web accessibility testing APIs. 
 
