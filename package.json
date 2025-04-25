@@ -1,14 +1,14 @@
 {
   "name": "a11y-mcp-server",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "An MCP server for accessibility testing using Axe-core",
-  "type": "module",                      
+  "type": "module",
   "main": "build/index.js",
   "bin": {
     "a11y-mcp-server": "./build/bin/a11y-mcp-server.js"
   },
   "files": [
-    "build/**/*"                          
+    "build/**/*"
   ],
   "scripts": {
     "build": "tsc",
