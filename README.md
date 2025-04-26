@@ -10,6 +10,8 @@ This server uses the Deque Axe-core API and Puppeteer to allow LLMs to analyze w
 
 NOTE: This is not an official MCP server from Deque Labs.
 
+Leave a star if you enjoyed the project! 🌟
+
 ## Features
 
 - **Test web pages**: Test any public URL for accessibility issues
