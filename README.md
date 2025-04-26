@@ -20,23 +20,33 @@ NOTE: This is not an official MCP server from Deque Labs.
 - **ARIA validation**: Test proper usage of ARIA attributes
 - **Orientation lock detection**: Identify content that forces specific screen orientations
 
-## Demo
-
-https://github.com/user-attachments/assets/7264a173-fad6-4f43-b8d8-e5f120d2d47b
-
 ## Installation
+To use this server with Claude Desktop, you need to configure it in the MCP settings:
 
-To install globally and use as a command-line tool:
+**For macOS:**
+Edit the file at `'~/Library/Application Support/Claude/claude_desktop_config.json'`
 
-```bash
-npm install -g a11y-mcp-server
+```
+{
+  "mcpServers": {
+    "a11y-accessibility": {
+    "command": "npx",
+    "args": [
+      "-y",
+      "a11y-mcp-server"
+    ]
+   }
+  }
+}
 ```
 
-Then run the server:
+**For Windows:**
+Edit the file at `%APPDATA%\Claude\settings\claude_mcp_settings.json`
 
-```bash
-a11y-mcp-server
-```
+**For Linux:**
+Edit the file at `~/.config/Claude/settings/claude_mcp_settings.json`
+Replace `/path/to/axe-mcp-server/build/index.js` with the actual path to your compiled server file.
+
 
 ## Available Tools
 
@@ -130,35 +140,6 @@ Example
   "html": "<html><head><meta name='viewport' content='width=device-width, orientation=portrait'></head><body>Content</body></html>"
 }
 ```
-
-
-## Integration with Claude Desktop
-To use this server with Claude Desktop, you need to configure it in the MCP settings:
-
-**For macOS:**
-Edit the file at `'~/Library/Application Support/Claude/claude_desktop_config.json'`
-
-```
-{
-  "mcpServers": {
-    "a11y-accessibility": {
-    "command": "npx",
-    "args": [
-      "-y",
-      "a11y-mcp-server"
-    ]
-   }
-  }
-}
-```
-
-**For Windows:**
-Edit the file at `%APPDATA%\Claude\settings\claude_mcp_settings.json`
-
-**For Linux:**
-Edit the file at `~/.config/Claude/settings/claude_mcp_settings.json`
-Replace `/path/to/axe-mcp-server/build/index.js` with the actual path to your compiled server file.
-
 
 ## Response Format
 The server returns accessibility test results in a structured JSON format:
