@@ -1,4 +1,5 @@
 # Web Accessibility-Testing MCP Server (A11y MCP)
+[![smithery badge](https://smithery.ai/badge/@ronantakizawa/a11ymcp)](https://smithery.ai/server/@ronantakizawa/a11ymcp)
 
 ![a11ymcpwide](https://github.com/user-attachments/assets/a37c4a9e-da5e-49ac-9705-0ef87a1d5c17)
 
