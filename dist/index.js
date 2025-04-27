@@ -89,11 +89,11 @@ class AxeAccessibilityServer {
                         properties: {
                             foreground: {
                                 type: 'string',
-                                description: 'Foreground color in hex format (e.g., "#000000")',
+                                description: 'Foreground color in various formats (e.g., "#000000", "#000", "rgb(0,0,0)", "hsv(0,0%,0%)")',
                             },
                             background: {
                                 type: 'string',
-                                description: 'Background color in hex format (e.g., "#FFFFFF")',
+                                description: 'Background color in various formats (e.g., "#FFFFFF", "#FFF", "rgb(255,255,255)", "hsv(0,0%,100%)")',
                             },
                             fontSize: {
                                 type: 'number',
@@ -274,18 +274,145 @@ class AxeAccessibilityServer {
             throw new McpError(ErrorCode.InternalError, `Failed to get rules: ${error instanceof Error ? error.message : String(error)}`);
         }
     }
+    /**
+     * Convert various color formats to RGB values
+     * Supports Hex (#RGB, #RRGGBB), RGB, HSV, and named colors
+     */
+    parseColor(color) {
+        // Clean up the color string
+        color = color.trim().toLowerCase();
+        // Check if it's a hex color
+        if (color.startsWith('#')) {
+            // Handle #RGB format
+            if (color.length === 4) {
+                const r = parseInt(color[1] + color[1], 16);
+                const g = parseInt(color[2] + color[2], 16);
+                const b = parseInt(color[3] + color[3], 16);
+                return { r, g, b };
+            }
+            // Handle #RRGGBB format
+            else if (color.length === 7) {
+                const r = parseInt(color.substring(1, 3), 16);
+                const g = parseInt(color.substring(3, 5), 16);
+                const b = parseInt(color.substring(5, 7), 16);
+                return { r, g, b };
+            }
+        }
+        // Check if it's an RGB color
+        const rgbMatch = color.match(/^rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/i);
+        if (rgbMatch) {
+            const r = parseInt(rgbMatch[1], 10);
+            const g = parseInt(rgbMatch[2], 10);
+            const b = parseInt(rgbMatch[3], 10);
+            return { r, g, b };
+        }
+        // Check if it's an HSV color
+        const hsvMatch = color.match(/^hsv\(\s*(\d+)\s*,\s*(\d+)%?\s*,\s*(\d+)%?\s*\)$/i);
+        if (hsvMatch) {
+            return this.hsvToRgb(parseInt(hsvMatch[1], 10), parseInt(hsvMatch[2], 10) / 100, parseInt(hsvMatch[3], 10) / 100);
+        }
+        // If we can't parse it, throw an error
+        throw new Error(`Unsupported color format: ${color}. Supported formats are: #RGB, #RRGGBB, rgb(r,g,b), hsv(h,s%,v%)`);
+    }
+    /**
+     * Convert RGB color to hex format
+     */
+    rgbToHex(rgb) {
+        const toHex = (val) => {
+            const hex = Math.round(Math.max(0, Math.min(255, val))).toString(16);
+            return hex.length === 1 ? '0' + hex : hex;
+        };
+        return `#${toHex(rgb.r)}${toHex(rgb.g)}${toHex(rgb.b)}`;
+    }
+    /**
+     * Convert HSV color to RGB format
+     * h: 0-360 (degrees)
+     * s: 0-1 (saturation percentage)
+     * v: 0-1 (value percentage)
+     */
+    hsvToRgb(h, s, v) {
+        h = Math.max(0, Math.min(360, h));
+        s = Math.max(0, Math.min(1, s));
+        v = Math.max(0, Math.min(1, v));
+        const c = v * s;
+        const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+        const m = v - c;
+        let r = 0, g = 0, b = 0;
+        if (h >= 0 && h < 60) {
+            r = c;
+            g = x;
+            b = 0;
+        }
+        else if (h >= 60 && h < 120) {
+            r = x;
+            g = c;
+            b = 0;
+        }
+        else if (h >= 120 && h < 180) {
+            r = 0;
+            g = c;
+            b = x;
+        }
+        else if (h >= 180 && h < 240) {
+            r = 0;
+            g = x;
+            b = c;
+        }
+        else if (h >= 240 && h < 300) {
+            r = x;
+            g = 0;
+            b = c;
+        }
+        else if (h >= 300 && h < 360) {
+            r = c;
+            g = 0;
+            b = x;
+        }
+        return {
+            r: Math.round((r + m) * 255),
+            g: Math.round((g + m) * 255),
+            b: Math.round((b + m) * 255)
+        };
+    }
+    /**
+     * Calculate contrast ratio directly
+     */
+    calculateContrastRatio(color1, color2) {
+        // Calculate luminance for a color
+        const luminance = (rgb) => {
+            const a = [rgb.r, rgb.g, rgb.b].map(v => {
+                v /= 255;
+                return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+            });
+            return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722;
+        };
+        const l1 = luminance(color1);
+        const l2 = luminance(color2);
+        // Calculate contrast ratio
+        const ratio = (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+        return parseFloat(ratio.toFixed(2));
+    }
     async checkColorContrast(args) {
         const { foreground, background, fontSize = 16, isBold = false } = args;
         if (!foreground || !background) {
             throw new McpError(ErrorCode.InvalidParams, 'Missing required parameters: foreground and background colors');
         }
-        // Validate hex color format
-        const hexColorRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
-        if (!hexColorRegex.test(foreground) || !hexColorRegex.test(background)) {
-            throw new McpError(ErrorCode.InvalidParams, 'Colors must be in hex format (e.g., "#000000" or "#000")');
-        }
         let browser;
         try {
+            // Parse colors to RGB values
+            let fgRgb, bgRgb;
+            try {
+                fgRgb = this.parseColor(foreground);
+                bgRgb = this.parseColor(background);
+            }
+            catch (error) {
+                throw new McpError(ErrorCode.InvalidParams, `Color parsing error: ${error instanceof Error ? error.message : String(error)}`);
+            }
+            // Convert to hex for Axe engine (as that's what it uses internally)
+            const fgHex = this.rgbToHex(fgRgb);
+            const bgHex = this.rgbToHex(bgRgb);
+            // Calculate contrast ratio directly
+            const directContrastRatio = this.calculateContrastRatio(fgRgb, bgRgb);
             browser = await puppeteer.launch({
                 headless: true,
                 args: ['--no-sandbox', '--disable-setuid-sandbox']
@@ -298,8 +425,8 @@ class AxeAccessibilityServer {
           <head>
             <style>
               .test-element {
-                color: ${foreground};
-                background-color: ${background};
+                color: ${fgHex};
+                background-color: ${bgHex};
                 font-size: ${fontSize}px;
                 font-weight: ${isBold ? 'bold' : 'normal'};
                 padding: 20px;
@@ -324,19 +451,15 @@ class AxeAccessibilityServer {
             // Check if there are any violations
             const passes = result.violations.length === 0;
             // Extract contrast ratio from failure summary text
-            let contrastRatio = null;
-            let extractionMethod = 'none';
+            let contrastRatio = directContrastRatio; // Use our calculated ratio as default
+            let extractionMethod = 'direct-calculation';
             if (result.violations.length > 0 && result.violations[0].nodes.length > 0) {
                 const failureSummary = result.violations[0].nodes[0].failureSummary || '';
                 // Extract contrast ratio from failure summary using regex
                 const match = failureSummary.match(/contrast ratio of ([0-9.]+)/);
                 if (match && match[1]) {
                     contrastRatio = parseFloat(match[1]);
-                    extractionMethod = 'regex';
-                    console.error(`[DEBUG] Extracted contrast ratio via regex: ${contrastRatio}`);
-                }
-                else {
-                    console.error(`[DEBUG] Failed to extract contrast ratio via regex`);
+                    extractionMethod = 'axe-calculation';
                 }
                 // Additional inspection of violation data
                 if (contrastRatio === null) {
@@ -346,7 +469,7 @@ class AxeAccessibilityServer {
                         if (node.any[0].data) {
                             if (node.any[0].data.contrastRatio) {
                                 contrastRatio = node.any[0].data.contrastRatio;
-                                extractionMethod = 'node.any[0].data';
+                                extractionMethod = 'axe-violation-data';
                             }
                         }
                     }
@@ -357,88 +480,7 @@ class AxeAccessibilityServer {
                 const node = result.passes[0].nodes[0];
                 if (node.any && node.any.length > 0 && node.any[0].data && node.any[0].data.contrastRatio) {
                     contrastRatio = node.any[0].data.contrastRatio;
-                    extractionMethod = 'pass.node.any[0].data';
-                }
-            }
-            // If we couldn't extract it, calculate it directly
-            if (contrastRatio === null) {
-                // Calculate contrast ratio using page evaluation
-                contrastRatio = await page.evaluate((fg, bg) => {
-                    // Helper to convert hex to rgb
-                    const hexToRgb = (hex) => {
-                        const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-                        const fullHex = hex.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b);
-                        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(fullHex);
-                        return result ? {
-                            r: parseInt(result[1], 16),
-                            g: parseInt(result[2], 16),
-                            b: parseInt(result[3], 16)
-                        } : { r: 0, g: 0, b: 0 };
-                    };
-                    // Calculate relative luminance
-                    const luminance = (rgb) => {
-                        const a = [rgb.r, rgb.g, rgb.b].map(v => {
-                            v /= 255;
-                            return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
-                        });
-                        return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722;
-                    };
-                    // Get RGB values
-                    const color1 = hexToRgb(fg);
-                    const color2 = hexToRgb(bg);
-                    // Calculate luminance
-                    const l1 = luminance(color1);
-                    const l2 = luminance(color2);
-                    // Calculate contrast ratio
-                    const ratio = (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
-                    return parseFloat(ratio.toFixed(2));
-                }, foreground, background);
-                extractionMethod = 'manual-calculation';
-            }
-            // Sanity check for known poor contrast combinations
-            if (contrastRatio === 4.5) {
-                // Calculate directly for verification
-                const verifiedRatio = await page.evaluate((fg, bg) => {
-                    const hexToRgb = (hex) => {
-                        const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-                        const fullHex = hex.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b);
-                        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(fullHex);
-                        return result ? {
-                            r: parseInt(result[1], 16),
-                            g: parseInt(result[2], 16),
-                            b: parseInt(result[3], 16)
-                        } : { r: 0, g: 0, b: 0 };
-                    };
-                    const luminance = (rgb) => {
-                        const a = [rgb.r, rgb.g, rgb.b].map(v => {
-                            v /= 255;
-                            return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
-                        });
-                        return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722;
-                    };
-                    const color1 = hexToRgb(fg);
-                    const color2 = hexToRgb(bg);
-                    const l1 = luminance(color1);
-                    const l2 = luminance(color2);
-                    const ratio = (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
-                    return parseFloat(ratio.toFixed(2));
-                }, foreground, background);
-                if (verifiedRatio !== 4.5) {
-                    contrastRatio = verifiedRatio;
-                    extractionMethod = 'verification-calculation';
-                }
-            }
-            // If we still have a suspicious value for known poor contrast combinations
-            if ((foreground === "#777777" && background === "#EEEEEE" && contrastRatio === 4.5) ||
-                (foreground === "#FFCCCC" && background === "#FFFFFF" && contrastRatio === 4.5)) {
-                // Force correct values for known combinations
-                if (foreground === "#777777" && background === "#EEEEEE") {
-                    contrastRatio = 2.5; // Approximate value
-                    extractionMethod = 'hardcoded-known-value';
-                }
-                else if (foreground === "#FFCCCC" && background === "#FFFFFF") {
-                    contrastRatio = 1.3; // Approximate value
-                    extractionMethod = 'hardcoded-known-value';
+                    extractionMethod = 'axe-pass-data';
                 }
             }
             // Determine required contrast ratios based on font size
@@ -450,12 +492,20 @@ class AxeAccessibilityServer {
                     {
                         type: 'text',
                         text: JSON.stringify({
-                            foreground,
-                            background,
+                            originalInput: {
+                                foreground: foreground,
+                                background: background,
+                            },
+                            normalizedColors: {
+                                foregroundHex: fgHex,
+                                backgroundHex: bgHex,
+                                foregroundRgb: `rgb(${fgRgb.r}, ${fgRgb.g}, ${fgRgb.b})`,
+                                backgroundRgb: `rgb(${bgRgb.r}, ${bgRgb.g}, ${bgRgb.b})`,
+                            },
                             fontSize,
                             isBold,
                             contrastRatio,
-                            extractionMethod,
+                            calculationMethod: extractionMethod,
                             isLargeText,
                             passesWCAG2AA: contrastRatio !== null ? contrastRatio >= requiredRatioAA : passes,
                             requiredRatioForAA: requiredRatioAA,
