@@ -1,10 +1,6 @@
 # Web Accessibility-Testing MCP Server (A11y MCP)
 [![smithery badge](https://smithery.ai/badge/@ronantakizawa/a11ymcp)](https://smithery.ai/server/@ronantakizawa/a11ymcp)
 
-<a href="https://glama.ai/mcp/servers/@ronantakizawa/a11ymcp">
-  <img width="380" height="200" src="https://glama.ai/mcp/servers/@ronantakizawa/a11ymcp/badge" />
-</a>
-
 ![a11ymcpwide](https://github.com/user-attachments/assets/a37c4a9e-da5e-49ac-9705-0ef87a1d5c17)
 
 
