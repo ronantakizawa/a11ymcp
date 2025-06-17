@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/ronantakizawa-a11ymcp-badge.png)](https://mseep.ai/app/ronantakizawa-a11ymcp)
+
 # Web Accessibility-Testing MCP Server (A11y MCP)
 [![smithery badge](https://smithery.ai/badge/@ronantakizawa/a11ymcp)](https://smithery.ai/server/@ronantakizawa/a11ymcp)
 
