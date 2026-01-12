@@ -7,7 +7,11 @@
   <img width="380" height="200" src="https://glama.ai/mcp/servers/@ronantakizawa/a11ymcp/badge" />
 </a>
 
-![a11ymcpwide](https://github.com/user-attachments/assets/a37c4a9e-da5e-49ac-9705-0ef87a1d5c17)
+
+
+https://github.com/user-attachments/assets/316c6d44-e677-433e-b4d5-63630b4bab2b
+
+
 
 
 A11y MCP is an MCP (Model Context Protocol) server that gives LLMs access to web accessibility testing APIs. 
@@ -17,6 +21,8 @@ This server uses the Deque Axe-core API and Puppeteer to allow LLMs to analyze w
 NOTE: This is not an official MCP server from Deque Labs.
 
 Leave a star if you enjoyed the project! 🌟
+
+
 
 ## Features
 
