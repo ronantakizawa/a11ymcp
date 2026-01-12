@@ -198,7 +198,7 @@ The server returns accessibility test results in a structured JSON format:
 }
 ```
 
-## Dependencies
+### Dependencies
 
 - @modelcontextprotocol/sdk
 - puppeteer
