@@ -1,7 +1,10 @@
 # Web Accessibility-Testing MCP Server (A11y MCP)
 <a href="https://www.producthunt.com/products/web-accessibility-testing-mcp?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-web-accessibility-testing-mcp" target="_blank" rel="noopener noreferrer"><img alt="Web Accessibility Testing MCP -  Give LLMs access to web accessibility testing APIs | Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1062073&amp;theme=light&amp;t=1768415232797"></a>
+
 [![MseeP.ai Security Assessment Badge](https://mseep.net/pr/ronantakizawa-a11ymcp-badge.png)](https://mseep.ai/app/ronantakizawa-a11ymcp)
+
 [![smithery badge](https://smithery.ai/badge/@ronantakizawa/a11ymcp)](https://smithery.ai/server/@ronantakizawa/a11ymcp)
+
 [![Verified on MseeP](https://mseep.ai/badge.svg)](https://mseep.ai/app/01361aeb-0dce-45d6-80fb-76ff443dbfc8)
 
 <a href="https://glama.ai/mcp/servers/@ronantakizawa/a11ymcp">
