@@ -74,29 +74,56 @@ Tests a URL for accessibility issues.
 **Parameters:**
 - `url` (required): The URL of the web page to test
 - `tags` (optional): Array of WCAG tags to test against (e.g., ["wcag2aa"])
+- `width` (optional): Viewport width in pixels (default: 1280)
+- `height` (optional): Viewport height in pixels (default: 800)
 
-Example
+**Example - Desktop viewport (default):**
 
-```
+```json
 {
  "url": "https://example.com",
  "tags": ["wcag2aa"]
 }
 ```
+
+**Example - Mobile viewport (iPhone 12/13):**
+
+```json
+{
+ "url": "https://example.com",
+ "tags": ["wcag2aa"],
+ "width": 390,
+ "height": 844
+}
+```
 ### test_html_string
 
 Tests an HTML string for accessibility issues.
-Parameters:
 
-* html (required): The HTML content to test
-* tags (optional): Array of WCAG tags to test against (e.g., ["wcag2aa"])
+**Parameters:**
 
-Example
+- `html` (required): The HTML content to test
+- `tags` (optional): Array of WCAG tags to test against (e.g., ["wcag2aa"])
+- `width` (optional): Viewport width in pixels (default: 1280)
+- `height` (optional): Viewport height in pixels (default: 800)
 
-```
+**Example - Default viewport:**
+
+```json
 {
   "html": "<div><img src='image.jpg'></div>",
   "tags": ["wcag2aa"]
+}
+```
+
+**Example - Mobile viewport:**
+
+```json
+{
+  "html": "<div><img src='image.jpg'></div>",
+  "tags": ["wcag2aa"],
+  "width": 375,
+  "height": 812
 }
 ```
 
