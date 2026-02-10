@@ -58,6 +58,16 @@ class AxeAccessibilityServer {
                 items: { type: 'string' },
                 description: 'Optional array of accessibility tags to test (e.g., "wcag2a", "wcag2aa", "wcag21a")',
                 default: ['wcag2aa']
+              },
+              width: {
+                type: 'number',
+                description: 'Viewport width in pixels (default: 1280)',
+                default: 1280
+              },
+              height: {
+                type: 'number',
+                description: 'Viewport height in pixels (default: 800)',
+                default: 800
               }
             },
             required: ['url'],
@@ -78,6 +88,16 @@ class AxeAccessibilityServer {
                 items: { type: 'string' },
                 description: 'Optional array of accessibility tags to test (e.g., "wcag2a", "wcag2aa", "wcag21a")',
                 default: ['wcag2aa']
+              },
+              width: {
+                type: 'number',
+                description: 'Viewport width in pixels (default: 1280)',
+                default: 1280
+              },
+              height: {
+                type: 'number',
+                description: 'Viewport height in pixels (default: 800)',
+                default: 800
               }
             },
             required: ['html'],
@@ -191,7 +211,7 @@ class AxeAccessibilityServer {
   }
 
   async testAccessibility(args: any) {
-    const { url, tags } = args;
+    const { url, tags, width = 1280, height = 800 } = args;
 
     if (!url) {
       throw new McpError(
@@ -207,9 +227,9 @@ class AxeAccessibilityServer {
         args: ['--no-sandbox', '--disable-setuid-sandbox']
       });
       const page = await browser.newPage();
-      
-      // Set a reasonable viewport
-      await page.setViewport({ width: 1280, height: 800 });
+
+      // Set viewport (defaults to 1280x800 for desktop)
+      await page.setViewport({ width, height });
       
       await page.goto(url, { waitUntil: 'networkidle0', timeout: 0 });
       
@@ -238,7 +258,7 @@ class AxeAccessibilityServer {
   }
 
   async testHtmlString(args: any) {
-    const { html, tags } = args;
+    const { html, tags, width = 1280, height = 800 } = args;
 
     if (!html) {
       throw new McpError(
@@ -254,9 +274,9 @@ class AxeAccessibilityServer {
         args: ['--no-sandbox', '--disable-setuid-sandbox']
       });
       const page = await browser.newPage();
-      
-      // Set a reasonable viewport
-      await page.setViewport({ width: 1280, height: 800 });
+
+      // Set viewport (defaults to 1280x800 for desktop)
+      await page.setViewport({ width, height });
       
       await page.setContent(html, { waitUntil: 'networkidle0' });
       
