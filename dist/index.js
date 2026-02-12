@@ -5,7 +5,7 @@ import { CallToolRequestSchema, ErrorCode, ListToolsRequestSchema, McpError, } f
 import puppeteer from 'puppeteer';
 import AxePuppeteer from '@axe-core/puppeteer';
 // Import axe-core for direct API access
-import * as axe from 'axe-core';
+import axe from 'axe-core';
 class AxeAccessibilityServer {
     server;
     constructor() {
@@ -42,6 +42,16 @@ class AxeAccessibilityServer {
                                 items: { type: 'string' },
                                 description: 'Optional array of accessibility tags to test (e.g., "wcag2a", "wcag2aa", "wcag21a")',
                                 default: ['wcag2aa']
+                            },
+                            width: {
+                                type: 'number',
+                                description: 'Viewport width in pixels (default: 1280)',
+                                default: 1280
+                            },
+                            height: {
+                                type: 'number',
+                                description: 'Viewport height in pixels (default: 800)',
+                                default: 800
                             }
                         },
                         required: ['url'],
@@ -62,6 +72,16 @@ class AxeAccessibilityServer {
                                 items: { type: 'string' },
                                 description: 'Optional array of accessibility tags to test (e.g., "wcag2a", "wcag2aa", "wcag21a")',
                                 default: ['wcag2aa']
+                            },
+                            width: {
+                                type: 'number',
+                                description: 'Viewport width in pixels (default: 1280)',
+                                default: 1280
+                            },
+                            height: {
+                                type: 'number',
+                                description: 'Viewport height in pixels (default: 800)',
+                                default: 800
                             }
                         },
                         required: ['html'],
@@ -168,7 +188,7 @@ class AxeAccessibilityServer {
         });
     }
     async testAccessibility(args) {
-        const { url, tags } = args;
+        const { url, tags, width = 1280, height = 800 } = args;
         if (!url) {
             throw new McpError(ErrorCode.InvalidParams, 'Missing required parameter: url');
         }
@@ -179,8 +199,8 @@ class AxeAccessibilityServer {
                 args: ['--no-sandbox', '--disable-setuid-sandbox']
             });
             const page = await browser.newPage();
-            // Set a reasonable viewport
-            await page.setViewport({ width: 1280, height: 800 });
+            // Set viewport (defaults to 1280x800 for desktop)
+            await page.setViewport({ width, height });
             await page.goto(url, { waitUntil: 'networkidle0', timeout: 0 });
             // Run axe analysis
             const axe = new AxePuppeteer(page);
@@ -204,7 +224,7 @@ class AxeAccessibilityServer {
         }
     }
     async testHtmlString(args) {
-        const { html, tags } = args;
+        const { html, tags, width = 1280, height = 800 } = args;
         if (!html) {
             throw new McpError(ErrorCode.InvalidParams, 'Missing required parameter: html');
         }
@@ -215,8 +235,8 @@ class AxeAccessibilityServer {
                 args: ['--no-sandbox', '--disable-setuid-sandbox']
             });
             const page = await browser.newPage();
-            // Set a reasonable viewport
-            await page.setViewport({ width: 1280, height: 800 });
+            // Set viewport (defaults to 1280x800 for desktop)
+            await page.setViewport({ width, height });
             await page.setContent(html, { waitUntil: 'networkidle0' });
             // Run axe analysis
             const axe = new AxePuppeteer(page);

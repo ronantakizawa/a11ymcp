@@ -12,7 +12,7 @@ import AxePuppeteer from '@axe-core/puppeteer';
 // Import the Axe Types directly from axe-core
 import { AxeResults, Result, NodeResult, RunOptions } from 'axe-core';
 // Import axe-core for direct API access
-import * as axe from 'axe-core';
+import axe from 'axe-core';
 
 class AxeAccessibilityServer {
   private server: Server;
