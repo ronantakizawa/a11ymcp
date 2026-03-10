@@ -1,6 +1,6 @@
 # Web Accessibility-Testing MCP Server (A11y MCP)
 
-[glama](https://glama.ai/mcp/servers/ronantakizawa/a11ymcp
+[glama](https://glama.ai/mcp/servers/ronantakizawa/a11ymcp)
 
 <a href="https://www.producthunt.com/products/web-accessibility-testing-mcp?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-web-accessibility-testing-mcp" target="_blank" rel="noopener noreferrer"><img alt="Web Accessibility Testing MCP - Give LLMs access to web accessibility testing APIs | Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1062073&theme=light&t=1768415232797"></a>
 
