@@ -14,8 +14,12 @@
   ],
   "scripts": {
     "build": "tsc && shx chmod +x dist/*.js",
+    "test": "tsx --test test/**/*.test.ts",
     "prepare": "npm run build",
     "start": "node dist/index.js"
+  },
+  "engines": {
+    "node": ">=22"
   },
   "keywords": [
     "accessibility",
@@ -30,16 +34,17 @@
   "author": "Ronan Takizawa",
   "license": "MIT",
   "dependencies": {
-    "@axe-core/puppeteer": "^4.4.0",
-    "@modelcontextprotocol/sdk": "^0.6.0",
-    "axe-core": "^4.6.0",
-    "puppeteer": "13.5.0",
-    "puppeteer-core": "13.5.0"
+    "@axe-core/puppeteer": "4.11.3",
+    "@modelcontextprotocol/sdk": "1.29.0",
+    "accessibility-checker": "4.0.31",
+    "axe-core": "4.11.4",
+    "puppeteer": "25.9.0"
   },
   "devDependencies": {
-    "@types/node": "^20.9.0",
+    "@types/node": "^24.0.0",
     "shx": "^0.3.4",
-    "typescript": "^5.2.2"
+    "tsx": "4.23.12",
+    "typescript": "5.9.3"
   },
   "repository": {
     "type": "git",

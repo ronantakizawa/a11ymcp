@@ -3,9 +3,10 @@ import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { CallToolRequestSchema, ErrorCode, ListToolsRequestSchema, McpError, } from '@modelcontextprotocol/sdk/types.js';
 import puppeteer from 'puppeteer';
-import AxePuppeteer from '@axe-core/puppeteer';
+import { AxePuppeteer } from '@axe-core/puppeteer';
 // Import axe-core for direct API access
 import axe from 'axe-core';
+import { runAceScan } from './ace.js';
 class AxeAccessibilityServer {
     server;
     constructor() {
@@ -29,7 +30,7 @@ class AxeAccessibilityServer {
             tools: [
                 {
                     name: 'test_accessibility',
-                    description: 'Test a webpage for accessibility issues using Axe-core',
+                    description: 'Test a webpage for accessibility issues using axe-core or IBM Equal Access ACE',
                     inputSchema: {
                         type: 'object',
                         properties: {
@@ -42,6 +43,17 @@ class AxeAccessibilityServer {
                                 items: { type: 'string' },
                                 description: 'Optional array of accessibility tags to test (e.g., "wcag2a", "wcag2aa", "wcag21a")',
                                 default: ['wcag2aa']
+                            },
+                            engine: {
+                                type: 'string',
+                                enum: ['axe', 'ace'],
+                                description: 'Accessibility engine to use (default: axe)',
+                                default: 'axe'
+                            },
+                            policies: {
+                                type: 'array',
+                                items: { type: 'string' },
+                                description: 'Optional ACE policy identifiers. Explicit policies override tag-derived policy selection.'
                             },
                             width: {
                                 type: 'number',
@@ -59,7 +71,7 @@ class AxeAccessibilityServer {
                 },
                 {
                     name: 'test_html_string',
-                    description: 'Test an HTML string for accessibility issues',
+                    description: 'Test an HTML string for accessibility issues using axe-core or IBM Equal Access ACE',
                     inputSchema: {
                         type: 'object',
                         properties: {
@@ -72,6 +84,17 @@ class AxeAccessibilityServer {
                                 items: { type: 'string' },
                                 description: 'Optional array of accessibility tags to test (e.g., "wcag2a", "wcag2aa", "wcag21a")',
                                 default: ['wcag2aa']
+                            },
+                            engine: {
+                                type: 'string',
+                                enum: ['axe', 'ace'],
+                                description: 'Accessibility engine to use (default: axe)',
+                                default: 'axe'
+                            },
+                            policies: {
+                                type: 'array',
+                                items: { type: 'string' },
+                                description: 'Optional ACE policy identifiers. Explicit policies override tag-derived policy selection.'
                             },
                             width: {
                                 type: 'number',
@@ -179,6 +202,9 @@ class AxeAccessibilityServer {
                 }
             }
             catch (error) {
+                if (error instanceof McpError) {
+                    throw error;
+                }
                 if (error instanceof Error) {
                     console.error('[Error] Failed to perform requested operation:', error);
                     throw new McpError(ErrorCode.InternalError, `Failed to perform requested operation: ${error.message}`);
@@ -188,10 +214,11 @@ class AxeAccessibilityServer {
         });
     }
     async testAccessibility(args) {
-        const { url, tags, width = 1280, height = 800 } = args;
+        const { url, tags, engine = 'axe', policies, width = 1280, height = 800 } = args;
         if (!url) {
             throw new McpError(ErrorCode.InvalidParams, 'Missing required parameter: url');
         }
+        this.validateScanEngine(engine);
         let browser;
         try {
             browser = await puppeteer.launch({
@@ -202,17 +229,14 @@ class AxeAccessibilityServer {
             // Set viewport (defaults to 1280x800 for desktop)
             await page.setViewport({ width, height });
             await page.goto(url, { waitUntil: 'networkidle0', timeout: 0 });
-            // Run axe analysis
-            const axe = new AxePuppeteer(page);
-            if (tags && tags.length > 0) {
-                axe.withTags(tags);
-            }
-            const result = await axe.analyze();
+            const result = engine === 'ace'
+                ? await runAceScan(page, { tags, policies, label: url })
+                : this.formatResults(await this.runAxeScan(page, tags));
             return {
                 content: [
                     {
                         type: 'text',
-                        text: JSON.stringify(this.formatResults(result), null, 2),
+                        text: JSON.stringify(result, null, 2),
                     },
                 ],
             };
@@ -224,10 +248,11 @@ class AxeAccessibilityServer {
         }
     }
     async testHtmlString(args) {
-        const { html, tags, width = 1280, height = 800 } = args;
+        const { html, tags, engine = 'axe', policies, width = 1280, height = 800 } = args;
         if (!html) {
             throw new McpError(ErrorCode.InvalidParams, 'Missing required parameter: html');
         }
+        this.validateScanEngine(engine);
         let browser;
         try {
             browser = await puppeteer.launch({
@@ -237,18 +262,16 @@ class AxeAccessibilityServer {
             const page = await browser.newPage();
             // Set viewport (defaults to 1280x800 for desktop)
             await page.setViewport({ width, height });
-            await page.setContent(html, { waitUntil: 'networkidle0' });
-            // Run axe analysis
-            const axe = new AxePuppeteer(page);
-            if (tags && tags.length > 0) {
-                axe.withTags(tags);
-            }
-            const result = await axe.analyze();
+            await page.setContent(html, { waitUntil: 'domcontentloaded' });
+            await page.waitForNetworkIdle({ idleTime: 500, timeout: 30000 }).catch(() => { });
+            const result = engine === 'ace'
+                ? await runAceScan(page, { tags, policies, label: 'html-string' })
+                : this.formatResults(await this.runAxeScan(page, tags));
             return {
                 content: [
                     {
                         type: 'text',
-                        text: JSON.stringify(this.formatResults(result), null, 2),
+                        text: JSON.stringify(result, null, 2),
                     },
                 ],
             };
@@ -258,6 +281,18 @@ class AxeAccessibilityServer {
                 await browser.close();
             }
         }
+    }
+    validateScanEngine(engine) {
+        if (engine !== 'axe' && engine !== 'ace') {
+            throw new McpError(ErrorCode.InvalidParams, `Unsupported accessibility engine: ${String(engine)}`);
+        }
+    }
+    async runAxeScan(page, tags) {
+        const axeRunner = new AxePuppeteer(page);
+        if (tags && tags.length > 0) {
+            axeRunner.withTags(tags);
+        }
+        return axeRunner.analyze();
     }
     async getRules(args) {
         const { tags } = args;
